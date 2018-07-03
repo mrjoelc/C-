@@ -7,60 +7,45 @@
     H* in;
     H* out;
     int n_in, n_out; //dimensioni array
-    Node<H> *parent, *left, *right; //puntatori parent e figli
+    Node<H> *parent, *left, *right;
   public:
-    Node(H* i, int nin, H* o=0, int nout=0, Node<H> *p = 0, Node<H> *l = 0, Node<H> *r = 0)
- 		: in(i), n_in(nin), out(o), n_out(nout), parent(p), left(l), right(r) {}
+    Node(H* i, int nin, H* o=0, int nout=0,
+         Node<H> *p = 0, Node<H> *l = 0, Node<H> *r = 0)
+ 		     : in(i), n_in(nin), out(o), n_out(nout),
+         parent(p), left(l), right(r) {}
 
-    //Get
     Node<H>* getParent() {return parent;}
     Node<H>* getLeft() {return left;}
     Node<H>* getRight() {return right;}
-
-    H* getIn() {return in;}
-    H* getOut() {return out;}
-
-    int getNIn() {return n_in;}
-    int getNOut() {return n_out;}
-
-    //Set
     void setParent(Node<H>* p) {parent=p;}
     void setLeft(Node<H>* l) {left=l;}
     void setRight(Node<H>* r) {right=r;}
 
+    H* getIn() {return in;}
+    H* getOut() {return out;}
+    int getNIn() {return n_in;}
+    int getNOut() {return n_out;}
+
     void setIn(H* i, int nin) {in=i; n_in=nin;}
     void setOut(H* o, int nout) {out=o; n_out=nout;}
- };
-
- class QSTree{
-    public:
-      virtual void printInput() = 0;
-      virtual void printOutput() = 0;
-      virtual int height() = 0;
-      virtual int calls() = 0;
  };
 
  template <class H> class MyQSTree : public QSTree{
   private:
     Node<H> *root;
     int _comp;
-
-    //Metodi di supporto: split spezza un array A in due array B e C
-    void split(H* A, int na, int center, H* &B, int &nb, H* &C, int &nc){
+    void split(H* A, int na, int center,
+               H* &B, int &nb, H* &C, int &nc){
         //Passare puntatore per riferimento e posizione pivot
         nb = center+1;
         nc = na-nb;
         B = new H[nb];
         C = new H[nc];
-        //copio meta' di A in B
+        //copio meta' di A in B l'altra in C
         for(int i=0;i<nb;i++) B[i]=A[i];
-
-        //e la restante met�� in C
         for(int i=nb;i<na;i++) C[i-nb]=A[i];
     }
-    //Merge fonde in un array C, gli array A e B.
     void merge(H* A, int na, H* B, int nb, H* &C, int &nc){
-        //C riferimento
         nc = na+nb;
         C = new H[nc];
         int ia = 0;
@@ -69,7 +54,6 @@
         while(ia<na) C[ic++]=A[ia++];
         while(ib<nb) C[ic++]=B[ib++];
     }
-
     //Metodo per popolare l'albero (solo input)
     Node<H>* buildInputTree(H* A, int na){
       //Se c'e un elemento (o meno)
@@ -78,17 +62,11 @@
     	  H *tmp=cloneArray(A,na);
         int nb, nc;
     	  int piv=partition(tmp,0,na-1);
-    	   //cout<<piv<<endl;
-        split(tmp, na, piv, B, nb, C, nc); //dividi tmp in due parti
-    	   //stampa(B,nb);
-    	   //stampa(C,nc);
-
-        //Costruzione sottoalbero sinistro
+        split(tmp, na, piv, B, nb, C, nc);
         Node<H>* left_subtree = buildInputTree(B,nb);
-        //stessa cosa per il destro
         Node<H>* right_subtree = buildInputTree(C,nc);
-        //Nuovo nodo
-        Node<H> *r = new Node<H>(A,na,0,0,0,left_subtree,right_subtree);
+        Node<H> *r;
+        r = new Node<H>(A,na,0,0,0,left_subtree,right_subtree);
         left_subtree->setParent(r);
         right_subtree->setParent(r);
         return r;
